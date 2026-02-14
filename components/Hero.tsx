@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Github, Linkedin, Mail, ExternalLink, Download } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { PROFILE, PROJECTS } from '../constants';
 
 export const Hero: React.FC = () => {
@@ -8,7 +7,16 @@ export const Hero: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
   const [delta, setDelta] = useState(150);
-  const navigate = useNavigate();
+
+  const scrollToProjects = () => {
+    const element = document.getElementById('projects');
+    if (element) {
+      const offset = 100;
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
+  };
   
   const toRotate = ["Full-Stack Developer & AI Engineer"];
   const period = 2000;
@@ -69,7 +77,7 @@ export const Hero: React.FC = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <button 
-              onClick={() => navigate('/projects')}
+              onClick={scrollToProjects}
               className="px-8 py-3 bg-primary-500 hover:bg-primary-600 text-white rounded-full font-medium transition-all transform hover:scale-105 shadow-lg shadow-primary-500/25 flex items-center gap-2"
             >
               View My Projects <ArrowRight size={18} />
@@ -147,7 +155,7 @@ export const Hero: React.FC = () => {
           
           <div className="text-center mt-8">
              <button 
-               onClick={() => navigate('/projects')}
+               onClick={scrollToProjects}
                className="text-primary-400 hover:text-primary-300 font-medium inline-flex items-center gap-1 cursor-pointer transition-colors"
              >
                View All Projects <ArrowRight size={16} />

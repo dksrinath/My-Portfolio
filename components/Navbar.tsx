@@ -1,107 +1,58 @@
 import React, { useState, useEffect } from 'react';
 import { Download, Home, User, Folder, Mail } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const navigate = useNavigate();
-  const location = useLocation();
 
-  // Logic: Expand the island if we are scrolled down OR if we are on a dedicated page
-  const isExpanded = isScrolled || ['/projects', '/about', '/contact'].includes(location.pathname);
+  // Logic: Expand the island if we are scrolled down
+  const isExpanded = isScrolled;
 
   useEffect(() => {
     const handleScroll = () => {
       // 1. Detect Scroll for Expansion
       setIsScrolled(window.scrollY > 250);
 
-      // 2. Active Section Logic (scroll-based on home, route-based on dedicated pages)
-      if (location.pathname === '/') {
-        const sections = ['home', 'about', 'contact'];
+      // 2. Active Section Logic
+      const sections = ['home', 'about', 'projects', 'contact'];
 
-        // Check if bottom of page (for Contact)
-        if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 50) {
-             setActiveSection('contact');
-             return;
-        }
+      // Check if bottom of page (for Contact)
+      if ((window.innerHeight + Math.round(window.scrollY)) >= document.body.offsetHeight - 50) {
+           setActiveSection('contact');
+           return;
+      }
 
-        for (const section of sections) {
-          const element = document.getElementById(section);
-          if (element) {
-            const elementTop = element.getBoundingClientRect().top;
-            const elementBottom = element.getBoundingClientRect().bottom;
-            // Check if section is in viewport
-            if (elementTop <= 250 && elementBottom >= 250) {
-               setActiveSection(section);
-               break;
-            }
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const elementTop = element.getBoundingClientRect().top;
+          const elementBottom = element.getBoundingClientRect().bottom;
+          // Check if section is in viewport
+          if (elementTop <= 250 && elementBottom >= 250) {
+             setActiveSection(section);
+             break;
           }
         }
-      } else if (location.pathname === '/projects') {
-        setActiveSection('projects');
-      } else if (location.pathname === '/about') {
-        setActiveSection('about');
-      } else if (location.pathname === '/contact') {
-        setActiveSection('contact');
       }
     };
 
     window.addEventListener('scroll', handleScroll);
     handleScroll(); // Initial check
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [location.pathname]);
-
-  // Handle navigation from other pages with scroll state
-  useEffect(() => {
-    if (location.pathname === '/' && location.state && (location.state as any).scrollTo) {
-      const scrollToId = (location.state as any).scrollTo;
-      setTimeout(() => {
-        const element = document.getElementById(scrollToId);
-        if (element) {
-          const offset = 100; // Adjusted for the floating island
-          const elementPosition = element.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - offset;
-          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-          setActiveSection(scrollToId);
-        } else if (scrollToId === 'home') {
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          setActiveSection('home');
-        }
-        // Clear state to prevent unwanted scrolling on refresh
-        window.history.replaceState({}, document.title);
-      }, 100);
-    }
-  }, [location]);
-
-  const pathMap: Record<string, string> = {
-    home: '/',
-    about: '/about',
-    projects: '/projects',
-    contact: '/contact',
-  };
+  }, []);
 
   const handleNavigation = (id: string) => {
-    const targetPath = pathMap[id] ?? '/';
-
-    // If we're on the homepage, prefer smooth-scrolling to sections when possible
-    if (location.pathname === '/') {
-      const element = document.getElementById(id);
-      if (element) {
-        const offset = 100; // Adjusted for the floating island
-        const elementPosition = element.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - offset;
-        window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        setActiveSection(id);
-        return;
-      }
-      // fallback to route if element not found (keeps deep links working)
-      navigate(targetPath);
-      return;
+    const element = document.getElementById(id);
+    if (element) {
+      const offset = 100; // Adjusted for the floating island
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - offset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+      setActiveSection(id);
+    } else if (id === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setActiveSection('home');
     }
-
-    // If not on home, navigate to the dedicated route
-    navigate(targetPath);
   };
 
   const navItems = [
